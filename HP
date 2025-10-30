@@ -1,0 +1,50 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class HealthManager : MonoBehaviour
+{
+    public int maxHealth = 100;
+    public int currentHealth;
+    public Image healthBarFill;  // HPバーの赤部分
+    private Animator anim;
+    private bool isDead = false;
+
+    void Start()
+    {
+        currentHealth = maxHealth;
+        anim = GetComponent<Animator>();
+        UpdateHealthBar();
+    }
+
+    public void TakeDamage(int amount)
+    {
+        if (isDead) return;
+
+        currentHealth -= amount;
+        currentHealth = Mathf.Max(currentHealth, 0);
+        UpdateHealthBar();
+
+        anim.SetTrigger("Hit");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void UpdateHealthBar()
+    {
+        if (healthBarFill != null)
+        {
+            float ratio = (float)currentHealth / maxHealth;
+            healthBarFill.fillAmount = ratio;
+        }
+    }
+
+    void Die()
+    {
+        isDead = true;
+        anim.SetTrigger("Die");
+        GameManager.instance.PlayerDied(gameObject);
+    }
+}
