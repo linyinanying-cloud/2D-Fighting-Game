@@ -1,0 +1,66 @@
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public string horizontalAxis = "Horizontal";
+    public KeyCode jumpKey = KeyCode.W;
+    public KeyCode attackKey = KeyCode.F;
+    public float moveSpeed = 5f;
+    public float jumpForce = 7f;
+    public bool isGrounded = true;
+    private Rigidbody2D rb;
+    private Animator anim;
+    private SpriteRenderer sr;
+    private bool isAttacking = false;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        sr = GetComponent<SpriteRenderer>();
+    }
+
+    void Update()
+    {
+        // 攻撃中は操作制限
+        if (isAttacking) return;
+
+        float move = Input.GetAxisRaw(horizontalAxis);
+        rb.velocity = new Vector2(move * moveSpeed, rb.velocity.y);
+
+        // 左右反転
+        if (move > 0) sr.flipX = false;
+        else if (move < 0) sr.flipX = true;
+
+        // アニメーション制御
+        anim.SetFloat("Speed", Mathf.Abs(move));
+
+        // ジャンプ
+        if (Input.GetKeyDown(jumpKey) && isGrounded)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            isGrounded = false;
+            anim.SetTrigger("Jump");
+        }
+
+        // 攻撃
+        if (Input.GetKeyDown(attackKey))
+        {
+            StartCoroutine(Attack());
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.contacts[0].normal.y > 0.5f)
+            isGrounded = true;
+    }
+
+    private System.Collections.IEnumerator Attack()
+    {
+        isAttacking = true;
+        anim.SetTrigger("Attack");
+        yield return new WaitForSeconds(0.4f); // 攻撃時間
+        isAttacking = false;
+    }
+}
