@@ -1,0 +1,40 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager instance;
+    public Text winText;
+    public GameObject restartButton;
+    private bool roundOver = false;
+
+    void Awake()
+    {
+        instance = this;
+        if (winText != null) winText.gameObject.SetActive(false);
+        if (restartButton != null) restartButton.SetActive(false);
+    }
+
+    public void PlayerDied(GameObject player)
+    {
+        if (roundOver) return;
+
+        roundOver = true;
+        string winner = player.name == "Player1" ? "Player 2 Wins!" : "Player 1 Wins!";
+
+        if (winText != null)
+        {
+            winText.text = winner;
+            winText.gameObject.SetActive(true);
+        }
+
+        if (restartButton != null)
+            restartButton.SetActive(true);
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+}
