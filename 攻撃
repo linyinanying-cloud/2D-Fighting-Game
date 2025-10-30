@@ -1,0 +1,38 @@
+using UnityEngine;
+
+public class AttackHandler : MonoBehaviour
+{
+    public int damage = 10;
+    public string targetTag = "Player";
+    private Collider2D hitbox;
+
+    void Start()
+    {
+        hitbox = GetComponent<Collider2D>();
+        hitbox.enabled = false;
+    }
+
+    // 攻撃ヒット判定開始（アニメーションイベントなどで呼ぶ）
+    public void EnableHitbox()
+    {
+        hitbox.enabled = true;
+    }
+
+    // 攻撃ヒット判定終了
+    public void DisableHitbox()
+    {
+        hitbox.enabled = false;
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag(targetTag))
+        {
+            HealthManager health = other.GetComponent<HealthManager>();
+            if (health != null)
+            {
+                health.TakeDamage(damage);
+            }
+        }
+    }
+}
